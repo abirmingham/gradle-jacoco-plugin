@@ -1,0 +1,31 @@
+apply plugin: 'groovy'
+// apply from: "https://launchpad.net/gradle-release/trunk/latest/+download/apply.groovy"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+    groovy localGroovy()
+}
+
+// uploadArchives {
+//     repositories {
+//         mavenDeployer {
+//             repository(url: uri(repositoryToUpload()))
+//         }
+//     }
+// }
+// 
+// createReleaseTag.dependsOn uploadArchives
+// 
+// String repositoryToUpload() {
+//     def mavenLocalRepository
+//     if (hasProperty('releaseDir')) {
+//         mavenLocalRepository = releaseDir
+//     } else {
+//         mavenLocalRepository = System.env.M2_HOME ?: "repo"
+//     }
+//     mavenLocalRepository
+// }

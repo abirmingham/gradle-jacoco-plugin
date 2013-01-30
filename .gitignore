@@ -1,0 +1,11 @@
+.idea
+*.iml
+*.ipr
+*.iws
+repo
+.gradle
+build
+out
+.DS_Store
+*.db
+target
