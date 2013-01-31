@@ -2,7 +2,6 @@ package com.github.abirmingham.gradle.jacoco
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-
 import org.gradle.api.plugins.ReportingBasePlugin
 
 class JacocoPlugin implements Plugin<Project> {
@@ -29,10 +28,10 @@ class JacocoPlugin implements Plugin<Project> {
         // Ensure test tasks exist
         project.apply plugin: 'java'
 
-        def jacocoExe    = "${extension.tmpDir}/jacoco.exe"
-        def antClasspath = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
-
         project.getTasks().findByName('test').with {
+            def jacocoExe    = "${extension.tmpDir}/jacoco.exe"
+            def antClasspath = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
+
             // Set jvmArgs
             doFirst {
                 ant.taskdef(
