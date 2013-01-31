@@ -1,5 +1,5 @@
 apply plugin: 'groovy'
-// apply from: "https://launchpad.net/gradle-release/trunk/latest/+download/apply.groovy"
+apply plugin: 'maven'
 
 def jacocoVersion = '0.5.7.201204190339'
 
@@ -14,23 +14,3 @@ dependencies {
     compile gradleApi()
     groovy localGroovy()
 }
-
-// uploadArchives {
-//     repositories {
-//         mavenDeployer {
-//             repository(url: uri(repositoryToUpload()))
-//         }
-//     }
-// }
-// 
-// createReleaseTag.dependsOn uploadArchives
-// 
-// String repositoryToUpload() {
-//     def mavenLocalRepository
-//     if (hasProperty('releaseDir')) {
-//         mavenLocalRepository = releaseDir
-//     } else {
-//         mavenLocalRepository = System.env.M2_HOME ?: "repo"
-//     }
-//     mavenLocalRepository
-// }
