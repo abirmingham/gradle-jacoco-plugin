@@ -2,21 +2,17 @@ package com.github.abirmingham.gradle.jacoco
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.project.IsolatedAntBuilder
+
 import org.gradle.api.plugins.ReportingBasePlugin
 
 class JacocoPlugin implements Plugin<Project> {
 
     static String NAME = "jacoco"
-    IsolatedAntBuilder antBuilder
 
     @Override
     void apply(Project project) {
         JacocoPluginExtension extension = createExtension(project)
-
-        instrumentTaskTestClasses(project, extension)
-
-        // TBD execute output
+        instrumentTestTask(project, extension)
     }
 
     JacocoPluginExtension createExtension(Project project) {
@@ -29,29 +25,61 @@ class JacocoPlugin implements Plugin<Project> {
         }
     }
 
-    void instrumentTaskTestClasses(Project project, JacocoPluginExtension extension) {
+    void instrumentTestTask(Project project, JacocoPluginExtension extension) {
         // Ensure test tasks exist
         project.apply plugin: 'java'
 
-        // Set jvmArgs
-        // antBuilder.withClasspath() // TBD maybe try this?
+        def jacocoExe    = "${extension.tmpDir}/jacoco.exe"
+        def antClasspath = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
+
         project.getTasks().findByName('test').with {
+            // Set jvmArgs
+            doFirst {
+                ant.taskdef(
+                        name:      'jacocoagent',
+                        classname: 'org.jacoco.ant.AgentTask',
+                        classpath:  antClasspath,
+                )
 
-            ant.taskdef(
-                    name:      'jacocoagent',
-                    classname: 'org.jacoco.ant.AgentTask',
-                    classpath:  project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
-            )
+                ant.jacocoagent(
+                        property:  'agentvmparam',
+                        output:    'file',
+                        destfile:   jacocoExe,
+                        append:     false,
+                        dumponexit: true,
+                )
+                jvmArgs "${ant.properties.agentvmparam}"
+            }
 
-            ant.jacocoagent(
-                    property:  'agentvmparam',
-                    destfile:  "${extension.tmpDir}/jacoco.exe",
-                    output:    "file",
-                    append:     false,
-                    dumponexit: true
-            )
+            // Print report
+            doLast {
+                if (!new File(jacocoExe).exists()) {
+                    logger.info("Skipping Jacoco report for ${project.name}. The data file is missing. (Maybe no tests ran in this module?)")
+                    logger.info("The data file was expected at $jacocoExe")
+                    return null
+                }
 
-            jvmArgs "${ant.properties.agentvmparam}"
+                ant.taskdef(name: 'jacocoreport', classname: 'org.jacoco.ant.ReportTask', classpath: antClasspath)
+                new File(extension.reportDir).mkdirs()
+
+                ant.jacocoreport {
+                    executiondata {
+                        ant.file file: "$jacocoExe"
+                    }
+                    structure(name: project.name) {
+                        classfiles {
+                            fileset dir: "${project.sourceSets.main.output.classesDir}"
+                        }
+                        sourcefiles {
+                            project.sourceSets.main.java.srcDirs.each {
+                                fileset(dir: it.absolutePath)
+                            }
+                        }
+                    }
+                    xml destfile: "${extension.reportDir}/jacoco.xml"
+                    html destdir: "${extension.reportDir}"
+                }
+            }
         }
     }
 }
