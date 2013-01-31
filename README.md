@@ -12,7 +12,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.github.abirmingham:gradle-jacoco-plugin:[VERSION]'
+        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.0-SNAPSHOT'
     }
 }
 
