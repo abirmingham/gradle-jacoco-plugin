@@ -30,8 +30,8 @@ jacoco {
 ```
 
 ## View output
+Assuming reportDir is unchanged:
 ```
-// assuming default reportDir is used:
 open ./build/reports/jacoco/index.html
 ```
 
