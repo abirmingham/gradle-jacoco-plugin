@@ -29,8 +29,8 @@ class JacocoPlugin implements Plugin<Project> {
         project.apply plugin: 'java'
 
         project.getTasks().findByName('test').with {
-            def jacocoExe    = "${extension.tmpDir}/jacoco.exe"
-            def antClasspath = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
+            def antClasspath  = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
+            def findJacocoExe = { "${extension.tmpDir}/jacoco.exe" }
 
             // Set jvmArgs
             doFirst {
@@ -43,7 +43,7 @@ class JacocoPlugin implements Plugin<Project> {
                 ant.jacocoagent(
                         property:  'agentvmparam',
                         output:    'file',
-                        destfile:   jacocoExe,
+                        destfile:   findJacocoExe(),
                         append:     false,
                         dumponexit: true,
                 )
@@ -52,6 +52,8 @@ class JacocoPlugin implements Plugin<Project> {
 
             // Print report
             doLast {
+                def jacocoExe = findJacocoExe()
+
                 if (!new File(jacocoExe).exists()) {
                     logger.info("Skipping Jacoco report for ${project.name}. The data file is missing. (Maybe no tests ran in this module?)")
                     logger.info("The data file was expected at $jacocoExe")
