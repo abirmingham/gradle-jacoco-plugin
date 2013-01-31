@@ -1,11 +1,16 @@
 apply plugin: 'groovy'
 // apply from: "https://launchpad.net/gradle-release/trunk/latest/+download/apply.groovy"
 
+def jacocoVersion = '0.5.7.201204190339'
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compile "org.jacoco:org.jacoco.agent:$jacocoVersion"
+    compile "org.jacoco:org.jacoco.ant:$jacocoVersion"
+
     compile gradleApi()
     groovy localGroovy()
 }
