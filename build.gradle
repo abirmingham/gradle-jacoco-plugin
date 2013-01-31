@@ -14,3 +14,11 @@ dependencies {
     compile gradleApi()
     groovy localGroovy()
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file://$projectDir/repository/")
+        }
+    }
+}
