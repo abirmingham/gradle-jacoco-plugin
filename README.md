@@ -8,7 +8,7 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            url uri('http://abirmingham.github.com/repository')
+            url uri('http://abirmingham.github.com/repository') // upload to mavenCentral() pending
         }
     }
     dependencies {
