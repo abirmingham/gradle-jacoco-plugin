@@ -18,7 +18,7 @@ dependencies {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "file://$projectDir/repository/")
+            repository(url: "file://$projectDir/../abirmingham.github.com/repository/")
         }
     }
 }
