@@ -64,7 +64,7 @@ uploadArchives {
             if (signing.signatory) {
                 beforeDeployment { signing.signPom(it) }
             }
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            repository(url: (isSnapshot ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/')) {
                 authentication(userName: System.properties['mavenCentralUsername'], password: System.properties['mavenCentralPassword'])
                 releases(updatePolicy: 'always')
                 snapshots(updatePolicy: 'always')
