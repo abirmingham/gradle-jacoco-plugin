@@ -25,16 +25,17 @@ class JacocoPlugin implements Plugin<Project> {
     void instrumentTestTask(Project project, JacocoPluginExtension extension) {
         project.apply plugin: 'java' // ensure test tasks exist
 
+
         project.getTasks().findByName('test').with {
             // Can't fetch this yet because it will resolve (e.g. lockdown) the configuration
-            def getAntClasspath = {
+            def lazyAntClasspath = {
                 project.getBuildscript().getConfigurations().findByName('classpath').plus(
-                    project.getConfigurations().findByName('compile')
+                        project.getConfigurations().findByName('compile')
                 ).getAsPath()
             }
 
             // Can't fetch this yet because user may override extension.tmpDir
-            def getAgentPath = {
+            def lazyAgentPath = {
                 "${extension.tmpDir}/jacoco.exe"
             }
 
@@ -43,13 +44,13 @@ class JacocoPlugin implements Plugin<Project> {
                 ant.taskdef(
                         name:      'jacocoagent',
                         classname: 'org.jacoco.ant.AgentTask',
-                        classpath:  getAntClassPath()
+                        classpath:  lazyAntClasspath()
                 )
 
                 ant.jacocoagent(
                         property:  'agentvmparam',
                         output:    'file',
-                        destfile:   getAgentPath(),
+                        destfile:   lazyAgentPath(),
                         append:     false,
                         dumponexit: true,
                 )
@@ -60,9 +61,9 @@ class JacocoPlugin implements Plugin<Project> {
 
             // Print report
             doLast {
-                if (!new File(getAgentPath()).exists()) {
+                if (!new File(lazyAgentPath()).exists()) {
                     logger.info("Skipping Jacoco report for ${project.name}. The data file is missing. (Maybe no tests ran in this module?)")
-                    logger.info('The data file was expected at ' + getAgentPath())
+                    logger.info('The data file was expected at ' + lazyAgentPath())
                     return null
                 }
 
@@ -71,12 +72,12 @@ class JacocoPlugin implements Plugin<Project> {
                 ant.taskdef(
                         name:      'jacocoreport',
                         classname: 'org.jacoco.ant.ReportTask',
-                        classpath:  getAntClasspath()
+                        classpath:  lazyAntClasspath()
                 )
 
                 ant.jacocoreport {
                     executiondata {
-                        ant.file file: getAgentPath()
+                        ant.file file: lazyAgentPath()
                     }
                     structure(name: project.name) {
                         classfiles {

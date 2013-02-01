@@ -1,5 +1,4 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
 
 def jacocoVersion = '0.6.1.201212231917'
 
@@ -15,12 +14,90 @@ dependencies {
     groovy localGroovy()
 }
 
+/******** Maven publication *********/
+apply plugin: 'signing'
+apply plugin: 'maven'
+
+ext.isSnapshot = version.endsWith("-SNAPSHOT")
+
+task sourceJar(type: Jar) {
+    description = 'An archive of the source code for Maven Central'
+    classifier = 'sources'
+    from sourceSets.main.groovy
+}
+
+task groovydocJar(type: Jar) {
+    description = 'An archive of the GroovyDocs for Maven Central'
+    classifier = 'javadoc'
+    from groovydoc
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.3'
+}
+
+artifacts {
+    archives groovydocJar, sourceJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+// Only *require* signing if we are uploading a non snapshot version
+gradle.taskGraph.whenReady { taskGraph ->
+    tasks.withType(org.gradle.plugins.signing.Sign).all {
+        required = taskGraph.hasTask(":uploadArchives") && !isSnapshot
+    }
+}
+
+install.repositories.mavenInstaller {
+    pom.project(pomConfiguration)
+    if (signing.signatory) {
+        beforeDeployment { signing.signPom(it) }
+    }
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: "", password: "")
+            if (signing.signatory) {
+                beforeDeployment { signing.signPom(it) }
             }
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: System.properties['mavenCentralUsername'], password: System.properties['mavenCentralPassword'])
+                releases(updatePolicy: 'always')
+                snapshots(updatePolicy: 'always')
+            }
+            pom.project(pomConfiguration)
+        }
+    }
+}
+
+def getPomConfiguration() {
+    return {
+        name 'Gradle Jacoco Plugin'
+        packaging 'jar'
+        description 'A Gradle plugin for Jacoco'
+        url 'https://github.com/abirmingham/gradle-jacoco-plugin'
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+        developers {
+            developer {
+                id 'abirmingham'
+                name 'Alex Birmingham'
+                email 'alexx1523@gmail.com'
+            }
+        }
+        scm {
+            connection 'scm:https://abirmingham@github.com/abirmingham/gradle-jacoco-plugin'
+            developerConnection 'scm:git@github.com:abirmingham/gradle-jacoco-plugin.git'
+            url 'https://github.com/abirmingham/gradle-jacoco-plugin'
         }
     }
 }
