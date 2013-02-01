@@ -32,6 +32,19 @@ class JacocoPlugin implements Plugin<Project> {
             def antClasspath  = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
             def findJacocoExe = { "${extension.tmpDir}/jacoco.exe" }
 
+            // TBD DEBUG START
+            project.println("DEBUG")
+            def jacocoVersion = '0.6.1.201212231917'
+
+            project.configurations { jacoco }
+
+            project.dependencies {
+                jacoco "org.jacoco:org.jacoco.agent:$jacocoVersion"
+                jacoco "org.jacoco:org.jacoco.ant:$jacocoVersion"
+            }
+            antClasspath  = project.configurations.jacoco.asPath
+            // TBD DEBUG END
+
             // Set jvmArgs
             doFirst {
                 ant.taskdef(
