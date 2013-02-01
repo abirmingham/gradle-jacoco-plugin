@@ -26,24 +26,30 @@ class JacocoPlugin implements Plugin<Project> {
         project.apply plugin: 'java' // ensure test tasks exist
 
         project.getTasks().findByName('test').with {
-            def antClasspath  = project.getBuildscript().getConfigurations().findByName('classpath').filter {
-                it.getName().matches(/.*org\.jacoco.*/)
-            }.getAsPath()
+            // Can't fetch this yet because it will resolve (e.g. lockdown) the configuration
+            def getAntClasspath = {
+                project.getBuildscript().getConfigurations().findByName('classpath').plus(
+                    project.getConfigurations().findByName('compile')
+                ).getAsPath()
+            }
 
-            def resolveAgentPath = { "${extension.tmpDir}/jacoco.exe" }
+            // Can't fetch this yet because user may override extension.tmpDir
+            def getAgentPath = {
+                "${extension.tmpDir}/jacoco.exe"
+            }
 
             doFirst {
                 // Make jacoco.exe javaagent
                 ant.taskdef(
                         name:      'jacocoagent',
                         classname: 'org.jacoco.ant.AgentTask',
-                        classpath:  antClasspath,
+                        classpath:  getAntClassPath()
                 )
 
                 ant.jacocoagent(
                         property:  'agentvmparam',
                         output:    'file',
-                        destfile:   resolveAgentPath(),
+                        destfile:   getAgentPath(),
                         append:     false,
                         dumponexit: true,
                 )
@@ -54,18 +60,23 @@ class JacocoPlugin implements Plugin<Project> {
 
             // Print report
             doLast {
-                if (!new File(resolveAgentPath()).exists()) {
+                if (!new File(getAgentPath()).exists()) {
                     logger.info("Skipping Jacoco report for ${project.name}. The data file is missing. (Maybe no tests ran in this module?)")
-                    logger.info('The data file was expected at ' + resolveAgentPath())
+                    logger.info('The data file was expected at ' + getAgentPath())
                     return null
                 }
 
-                ant.taskdef(name: 'jacocoreport', classname: 'org.jacoco.ant.ReportTask', classpath: antClasspath)
                 new File(extension.reportDir).mkdirs()
+
+                ant.taskdef(
+                        name:      'jacocoreport',
+                        classname: 'org.jacoco.ant.ReportTask',
+                        classpath:  getAntClasspath()
+                )
 
                 ant.jacocoreport {
                     executiondata {
-                        ant.file file: resolveAgentPath()
+                        ant.file file: getAgentPath()
                     }
                     structure(name: project.name) {
                         classfiles {
