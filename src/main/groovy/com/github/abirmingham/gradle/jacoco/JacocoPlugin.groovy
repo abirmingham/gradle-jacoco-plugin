@@ -6,8 +6,6 @@ import org.gradle.api.plugins.ReportingBasePlugin
 
 class JacocoPlugin implements Plugin<Project> {
 
-    static String NAME = "jacoco"
-
     @Override
     void apply(Project project) {
         JacocoPluginExtension extension = createExtension(project)
@@ -17,7 +15,7 @@ class JacocoPlugin implements Plugin<Project> {
     JacocoPluginExtension createExtension(Project project) {
         project.plugins.apply(ReportingBasePlugin)
 
-        return project.extensions.create(NAME, JacocoPluginExtension).with {
+        return project.extensions.create('jacoco', JacocoPluginExtension).with {
             reportDir = "${project.reporting.baseDir.absolutePath}/jacoco"
             tmpDir    = "${project.buildDir}/tmp/jacoco"
             return (JacocoPluginExtension) delegate
@@ -25,28 +23,17 @@ class JacocoPlugin implements Plugin<Project> {
     }
 
     void instrumentTestTask(Project project, JacocoPluginExtension extension) {
-        // Ensure test tasks exist
-        project.apply plugin: 'java'
+        project.apply plugin: 'java' // ensure test tasks exist
 
         project.getTasks().findByName('test').with {
-            def antClasspath  = project.getBuildscript().getConfigurations().findByName('classpath').getAsPath()
-            def findJacocoExe = { "${extension.tmpDir}/jacoco.exe" }
+            def antClasspath  = project.getBuildscript().getConfigurations().findByName('classpath').filter {
+                it.getName().matches(/.*org\.jacoco.*/)
+            }.getAsPath()
 
-            // TBD DEBUG START
-            project.println("DEBUG")
-            def jacocoVersion = '0.6.1.201212231917'
+            def resolveAgentPath = { "${extension.tmpDir}/jacoco.exe" }
 
-            project.configurations { jacoco }
-
-            project.dependencies {
-                jacoco "org.jacoco:org.jacoco.agent:$jacocoVersion"
-                jacoco "org.jacoco:org.jacoco.ant:$jacocoVersion"
-            }
-            antClasspath  = project.configurations.jacoco.asPath
-            // TBD DEBUG END
-
-            // Set jvmArgs
             doFirst {
+                // Make jacoco.exe javaagent
                 ant.taskdef(
                         name:      'jacocoagent',
                         classname: 'org.jacoco.ant.AgentTask',
@@ -56,20 +43,20 @@ class JacocoPlugin implements Plugin<Project> {
                 ant.jacocoagent(
                         property:  'agentvmparam',
                         output:    'file',
-                        destfile:   findJacocoExe(),
+                        destfile:   resolveAgentPath(),
                         append:     false,
                         dumponexit: true,
                 )
+
+                // Add jacoco.exe to jvmArgs
                 jvmArgs "${ant.properties.agentvmparam}"
             }
 
             // Print report
             doLast {
-                def jacocoExe = findJacocoExe()
-
-                if (!new File(jacocoExe).exists()) {
+                if (!new File(resolveAgentPath()).exists()) {
                     logger.info("Skipping Jacoco report for ${project.name}. The data file is missing. (Maybe no tests ran in this module?)")
-                    logger.info("The data file was expected at $jacocoExe")
+                    logger.info('The data file was expected at ' + resolveAgentPath())
                     return null
                 }
 
@@ -78,7 +65,7 @@ class JacocoPlugin implements Plugin<Project> {
 
                 ant.jacocoreport {
                     executiondata {
-                        ant.file file: "$jacocoExe"
+                        ant.file file: resolveAgentPath()
                     }
                     structure(name: project.name) {
                         classfiles {

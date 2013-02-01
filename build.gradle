@@ -18,7 +18,9 @@ dependencies {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "file://$projectDir/../abirmingham.github.com/repository/")
+            repository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: "", password: "")
+            }
         }
     }
 }
