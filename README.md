@@ -1,18 +1,12 @@
-# Gradle plugin for Jacoco (PRE-RELEASE)
+# Gradle plugin for Jacoco
 
 This plugin provides a gradle interface for generating a jacoco report.
 
 ## Usage
 ```
 buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url uri('http://abirmingham.github.com/repository') // upload to mavenCentral() pending
-        }
-    }
     dependencies {
-        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.0-SNAPSHOT'
+        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.1-SNAPSHOT'
     }
 }
 
