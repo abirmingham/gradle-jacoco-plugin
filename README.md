@@ -1,4 +1,4 @@
-# Gradle plugin for Jacoco
+# Gradle plugin for Jacoco (PRE-RELEASE)
 
 This plugin provides a gradle interface for generating a jacoco report.
 
