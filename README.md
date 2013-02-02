@@ -6,7 +6,7 @@ This plugin provides a gradle interface for generating a jacoco report.
 ```
 buildscript {
     dependencies {
-        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.1-SNAPSHOT'
+        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.1'
     }
 }
 
