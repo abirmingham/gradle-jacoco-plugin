@@ -36,11 +36,11 @@ class JacocoPlugin implements Plugin<Project> {
 
             // Can't fetch this yet because user may override extension.tmpDir
             def lazyAgentPath = {
-                "${extension.tmpDir}/jacoco.exe"
+                "${extension.tmpDir}/jacoco.exec"
             }
 
             doFirst {
-                // Make jacoco.exe javaagent
+                // Make jacoco.exec javaagent
                 ant.taskdef(
                         name:      'jacocoagent',
                         classname: 'org.jacoco.ant.AgentTask',
@@ -55,7 +55,7 @@ class JacocoPlugin implements Plugin<Project> {
                         dumponexit: true,
                 )
 
-                // Add jacoco.exe to jvmArgs
+                // Add jacoco.exec to jvmArgs
                 jvmArgs "${ant.properties.agentvmparam}"
             }
 

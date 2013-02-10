@@ -28,8 +28,8 @@ class JacocoPluginTest {
         assertNotNull(project.test)
         project.test.execute()
 
-        assertTrue(project.getTasks().findByName('test').jvmArgs.any { it.matches('.*jacoco\\.exe.*') })
-        // e.g. -javaagent:/var/folders/vv/9vg9d_f975q9s_rl8gbdzbk00000gn/T/jacocoagent8666481667761165084.jar=destfile=/private/var/folders/vv/9vg9d_f975q9s_rl8gbdzbk00000gn/T/gradle40938656179684856projectDir/build/tmp/jacoco/jacoco.exe,append=false,dumponexit=true,output=file
+        assertTrue(project.getTasks().findByName('test').jvmArgs.any { it.matches('.*jacoco\\.exec[,$].*') })
+        // e.g. -javaagent:/var/folders/vv/9vg9d_f975q9s_rl8gbdzbk00000gn/T/jacocoagent8666481667761165084.jar=destfile=/private/var/folders/vv/9vg9d_f975q9s_rl8gbdzbk00000gn/T/gradle40938656179684856projectDir/build/tmp/jacoco/jacoco.exec,append=false,dumponexit=true,output=file
     }
 
     // TBD test that configurations are added before their values are captured during plugin execution
