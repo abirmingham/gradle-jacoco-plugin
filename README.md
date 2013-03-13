@@ -2,7 +2,7 @@
 
 This plugin provides a gradle interface for generating a jacoco report.
 
-## Usage
+## Use
 ```
 buildscript {
     dependencies {
@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'jacoco'
 ```
 
-## Configuration
+## Configure
 ```
 jacoco {
     // note that no configuration is required
@@ -23,12 +23,12 @@ jacoco {
 }
 ```
 
-## View output
+## Profit
 Assuming reportDir is unchanged:
 ```
 open ./build/reports/jacoco/index.html
 ```
 
 
-## Implementation Notes
+## Notes
 Ant is used to instrument the test task (org.jacoco.ant.AgentTask), and to generate the report (org.jacoco.ant.ReportTask). Heavily influenced by [gschmidl/jacoco-gradle](http://github.com/gschmidl/jacoco-gradle).
