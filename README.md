@@ -6,7 +6,7 @@ This plugin provides a gradle interface for generating a jacoco report.
 ```
 buildscript {
     dependencies {
-        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.1'
+        classpath 'com.github.abirmingham:gradle-jacoco-plugin:1.2'
     }
 }
 
@@ -17,9 +17,9 @@ apply plugin: 'jacoco'
 ```
 jacoco {
     // note that no configuration is required
-    // the values shown here are the overrideable defaults
     tmpDir    = "${buildDir}/tmp/jacoco"
     reportDir = "${project.reporting.baseDir.absolutePath}/jacoco"
+    excludes  = ["**/*Controller", "com/mycompany/util/MyUntestableClass"]
 }
 ```
 
