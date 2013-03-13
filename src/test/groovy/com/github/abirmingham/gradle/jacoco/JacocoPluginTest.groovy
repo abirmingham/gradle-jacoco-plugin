@@ -16,6 +16,7 @@ class JacocoPluginTest {
     public void setup() {
         project = ProjectBuilder.builder().build()
         project.apply plugin: 'jacoco'
+        project.repositories { mavenCentral() }
     }
 
     @Test

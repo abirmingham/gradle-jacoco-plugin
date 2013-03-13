@@ -1,17 +1,16 @@
 apply plugin: 'groovy'
 
-def jacocoVersion = '0.6.1.201212231917'
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile "org.jacoco:org.jacoco.agent:$jacocoVersion"
-    compile "org.jacoco:org.jacoco.ant:$jacocoVersion"
-
     compile gradleApi()
     groovy localGroovy()
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.4'
 }
 
 /******** Maven publication *********/
@@ -30,10 +29,6 @@ task groovydocJar(type: Jar) {
     description = 'An archive of the GroovyDocs for Maven Central'
     classifier = 'javadoc'
     from groovydoc
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.3'
 }
 
 artifacts {
