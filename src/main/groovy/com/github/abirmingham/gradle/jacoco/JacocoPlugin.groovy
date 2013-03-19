@@ -112,6 +112,8 @@ class JacocoPlugin implements Plugin<Project> {
                             project.sourceSets.main.java.srcDirs.each { File dir ->
                                 if (dir.exists()) {
                                     fileset(dir: dir.absolutePath)
+                                } else {
+                                    logger.info "Missing source directory: ${dir.absolutePath}."
                                 }
                             }
                         }
